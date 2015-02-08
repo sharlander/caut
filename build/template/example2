@@ -1,0 +1,11 @@
+this is an example contet
+which shows you how to use
+variables from the factsfile
+
+hostname: <%$hostname%>
+ipaddress: <%$ipaddress%>
+osfamily: <%$osfamily%>
+
+
+
+

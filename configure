@@ -1,0 +1,36 @@
+#!/bin/sh
+
+PATH=/bin:/usr/bin
+
+echo Checking dependencies::
+echo ;
+
+echo looking for make:;
+which make > /dev/null;
+if [ $? -ne 0 ]
+then
+  echo make not found;
+  exit 1;
+else
+  echo found ... $(which make);
+fi
+
+echo looking for gcc:;
+which gcc > /dev/null;
+if [ $? -ne 0 ]
+then
+  echo gcc not found;
+  exit 2;
+else
+  echo found ... $(which gcc);
+fi
+echo looking for install:;
+
+which install > /dev/null;
+if [ $? -ne 0 ]
+then
+  echo install not found;
+  exit 3;
+else
+  echo found ... $(which install);
+fi

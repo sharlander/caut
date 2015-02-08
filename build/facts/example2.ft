@@ -1,0 +1,4 @@
+hostname=myawesomepc
+ipaddress=10.10.10.2
+osfamily=RedHat
+

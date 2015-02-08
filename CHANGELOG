@@ -1,0 +1,9 @@
+-------
+1.0.0:
+
+first working version
+
+supports a manifest file called init.pp
+and file resources ( creation only )
+
+--------
