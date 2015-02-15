@@ -3,39 +3,20 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "structs.h"
+
 int manifest_getentry (char line[1024], char savechar[200]);
 int manifest_removeticks (char *string);
 
 int readmanifests(int verbose, int debug, char *path) {
 
-  struct data {
-    char name[200];
-    char ensure[200];
-    char path[200];
-    char owner[200];
-    char group[200];
-    char mode[200];
-  } file[100];
-
-
-
   FILE *fp;
-
   char buffer[1024];
-  int filecount=0;
   int i, count;
 
   char manifest[512];
 
-  // fill all with a std value
-  strcpy(file[100].name, "0");
-  strcpy(file[100].ensure, "0");
-  strcpy(file[100].path, "0");
-  strcpy(file[100].owner, "0");
-  strcpy(file[100].group, "0");
-
-  for (count=0;count<100;count++)
-    file[count] = file[100];
+  /* struct file_data file; */
 
   sprintf(manifest, "%s/manifests/init.pp", path);
 
@@ -48,17 +29,28 @@ int readmanifests(int verbose, int debug, char *path) {
   if(debug==0)
     printf("reading manifest: %s\n", manifest);
 
+  /* loop init manifest */
   while(feof(fp) != 1) {
 
+    /* read a line of the manifest */
     fgets(buffer, 1024, fp);
 
+    /* skip comments */
     if(buffer[0] == '#')
       continue;
 
+    /* start file */
     if(strstr(buffer, "file {") != 0) {
 
-      ++filecount;
+      /* clean file struct for new file */
+      strcpy(file.name , "0");
+      strcpy(file.ensure , "0");
+      strcpy(file.path , "0");
+      strcpy(file.owner , "0");
+      strcpy(file.group , "0");
+      strcpy(file.mode , "0");
 
+      /* read filename */
       for(count=0;; count++) {
         if(buffer[count] == 34 || buffer[count] == 39)
           break;
@@ -67,53 +59,116 @@ int readmanifests(int verbose, int debug, char *path) {
       for(i=0;; i++, count++) {
         if(buffer[count] == 34 || buffer[count] == 39)
           break;
-        file[filecount].name[i] = buffer[count];
+        file.name[i] = buffer[count];
       }
 
-      file[filecount].name[i] = '\0';
+      file.name[i] = '\0';
 
       if(debug==0)
-        printf("found file ... %s\n", file[filecount].name);
+        printf("found file ... %s\n", file.name);
 
+      /* read file attributes */
       while (strstr(buffer, "}") == 0) {
 
         fgets(buffer, 1024, fp);
 
         if (strstr(buffer, "ensure") != 0)
-          manifest_getentry(buffer, file[filecount].ensure);
+          manifest_getentry(buffer, file.ensure);
         if (strstr(buffer, "path") != 0)
-          manifest_getentry(buffer, file[filecount].path);
+          manifest_getentry(buffer, file.path);
         if (strstr(buffer, "owner") != 0)
-          manifest_getentry(buffer, file[filecount].owner);
+          manifest_getentry(buffer, file.owner);
         if (strstr(buffer, "group") != 0)
-          manifest_getentry(buffer, file[filecount].group);
+          manifest_getentry(buffer, file.group);
         if (strstr(buffer, "mode") != 0)
-          manifest_getentry(buffer, file[filecount].mode);
+          manifest_getentry(buffer, file.mode);
       }
+      /* done reading file resource, create file */
+      if(verbose==0)
+        printf("ensure file ... %s\n", file.name);
+      providefile(debug, path);
+    }
+
+    /* start package */
+    if(strstr(buffer, "package {") != 0) {
+
+      /* clean package struct for new package */
+      strcpy(package.name , "0");
+      strcpy(package.ensure , "0");
+
+      /* read packagename */
+      for(count=0;; count++) {
+        if(buffer[count] == 34 || buffer[count] == 39)
+          break;
+      }
+      count++;
+      for(i=0;; i++, count++) {
+        if(buffer[count] == 34 || buffer[count] == 39)
+          break;
+        package.name[i] = buffer[count];
+      }
+
+      package.name[i] = '\0';
+
+      if(debug==0)
+        printf("found package ... %s\n", package.name);
+
+      /* read package attributes */
+      while (strstr(buffer, "}") == 0) {
+
+        fgets(buffer, 1024, fp);
+
+        if (strstr(buffer, "ensure") != 0)
+          manifest_getentry(buffer, package.ensure);
+      }
+      /* done reading file resource, create file */
+      if(verbose==0)
+        printf("ensure package ... %s\n", package.name);
+      providepackage(debug, path);
+    }
+    /* start service */
+    if(strstr(buffer, "service {") != 0) {
+
+      /* clean service struct for new service */
+      strcpy(service.name , "0");
+      strcpy(service.ensure , "0");
+
+      /* read servicename */
+      for(count=0;; count++) {
+        if(buffer[count] == 34 || buffer[count] == 39)
+          break;
+      }
+      count++;
+      for(i=0;; i++, count++) {
+        if(buffer[count] == 34 || buffer[count] == 39)
+          break;
+        service.name[i] = buffer[count];
+      }
+
+      service.name[i] = '\0';
+
+      if(debug==0)
+        printf("found service ... %s\n", service.name);
+
+      /* read service attributes */
+      while (strstr(buffer, "}") == 0) {
+
+        fgets(buffer, 1024, fp);
+
+        if (strstr(buffer, "ensure") != 0)
+          manifest_getentry(buffer, service.ensure);
+        if (strstr(buffer, "enable") != 0)
+          manifest_getentry(buffer, service.enable);
+      }
+      /* done reading file resource, create file */
+      if(verbose==0)
+        printf("ensure service ... %s\n", service.name);
+      provideservice(debug, path);
     }
   }
 
   if(debug==0)
     printf("closing manifest\n");
-
-  for(i=1; i<=filecount; i++) {
-    if(verbose==0)
-      printf("creating ... %s\n", file[i].name);
-
-    /* create file */
-    parsetemplate(debug, path, file[i].name, file[i].path);
-
-    /* set file attributes */
-    /* user, group */
-    if((strcmp(file[i].owner, "0")!=0) || (strcmp(file[i].group, "0")!=0))
-      file_chown(debug, file[i].path, file[i].owner, file[i].group);
-
-    /* mode */
-    if(debug==0)
-      printf("changing file mode to: %s\n", file[i].mode);
-    if(strcmp(file[i].mode, "0")!=0)
-      chmod(file[i].path, strtol(file[i].mode, 0, 8));
-  }
 
   fclose(fp);
 
