@@ -1,4 +1,21 @@
 -------
+1.0.1:
+
+	branch: extend_features
+
+  providers:
+  - package provider (yum only)
+  - service provider (init and systemd)
+  - extened file provider with - mkdir
+  - extened file provider with - absent
+  - extened file provider with - symlink
+
+  other:
+  - 'include' for other manifest files
+
+--------
+--------
+
 1.0.0:
 
 first working version

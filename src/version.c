@@ -2,5 +2,5 @@
 
 void version() {
 
-  printf("Version: 1.0.0\n");
+  printf("Version: 1.0.1\n");
 }

@@ -2,7 +2,12 @@ caut:
 =====
 
 A puppet like c automation tool
-At the moment 'caut' only supports files
+
+At the moment 'caut' only supports:
+
+ - files
+ - packages
+ - services
 
 ---
 
@@ -11,6 +16,9 @@ Overview:
 
 - Usage
 - Manifests
+ - File
+ - Package
+ - Service
 - Templates
 - Facts
 - Facter
@@ -35,7 +43,7 @@ Manifests:
 
 The manifests syntax should be well known from puppet
 
-#### Example manifest
+#### Example manifest: file
 
 <pre>
 
@@ -48,6 +56,68 @@ file { 'example':
 }
 
 </pre>
+
+The file ensure can be set to following values:
+
+- present
+- file
+- link
+- symlink
+- directory
+- absent
+
+present, file will create a template based file
+
+link, symlink will create a symlink ( hardlinks are not supported )
+
+directory will create a directory
+
+absent will remove the file
+
+#### Example manifest: package
+
+For the package installation you don't have to list all packges in the manifest
+
+Usually more than one package is needed/installed, that's why package names are imported
+form a "name".pg file which should be in the facts folder
+
+##### manifest:
+<pre>
+
+package { 'webserver':
+  ensure => present,
+}
+
+</pre>
+
+##### facts: webserver.pg
+<pre>
+
+httpd
+mod_ssl
+mod_fcgid
+php
+
+</pre>
+
+
+#### Example manifest: service
+
+services are simular to the puppet syntax, but there is still 1 difference
+if the service provider is used somewhere a fact called "provider_service" must be set in
+facter.ft or common.ft, possible values are "init" and "systemd"
+
+<pre>
+
+service { 'httpd':
+  ensure => 'running',
+  enable => 'true',
+}
+
+</pre>
+
+
+For more check out the module folder which is an example module
 
 ---
 
@@ -87,6 +157,8 @@ ipaddress=10.10.10.2
 
 </pre>
 
+For more check out the module folder which is an example module
+
 ---
 
 #### Facter
@@ -94,9 +166,9 @@ ipaddress=10.10.10.2
 'caut' also supports facter, but it is not integrated
 as facter is very slow, there is only an option to import all facter facts into the facts folder
 
-Those facts will be stored in facts/common.ft
+Those facts will be stored in facts/facter.ft
 
-Note: 'caut' will first look through the common.ft file and then the facts-file, so fact-files override values form common.ft
+Note: 'caut' will first look through the facter.ft file and then the facts-file, so fact-files override values form facter.ft
 
 ---
 
