@@ -7,10 +7,12 @@
 
 int manifest_getentry (char line[1024], char savechar[200]);
 int manifest_removeticks (char *string);
+int fpcounter=0;
+FILE *fp;
+FILE *fp2[100];
 
 int readmanifests(int verbose, int debug, char *path) {
 
-  FILE *fp;
   char buffer[1024];
   int i, count;
 
@@ -30,7 +32,7 @@ int readmanifests(int verbose, int debug, char *path) {
     printf("reading manifest: %s\n", manifest);
 
   /* loop init manifest */
-  while(feof(fp) != 1) {
+  while(set_manifest_fp(buffer, path) == 1) {
 
     /* read a line of the manifest */
     fgets(buffer, 1024, fp);
@@ -200,5 +202,55 @@ int manifest_removeticks (char *string) {
           )
     string[(strlen(string)-1)] = 0;
 
+  return 0;
+}
+
+int set_manifest_fp(char buffer[1024], char *path) {
+
+  char manifestname[512];
+  char manifestpath[512];
+  int count;
+  int i;
+
+  if(strstr(buffer, "include") != 0) {
+    /* read manifestname */
+    for(count=0;; count++) {
+      if(buffer[count] == 34 || buffer[count] == 39)
+        break;
+    }
+    count++;
+    for(i=0;; i++, count++) {
+      if(buffer[count] == 34 || buffer[count] == 39)
+        break;
+      manifestname[i] = buffer[count];
+    }
+    manifestname[i] = '\0';
+
+    fpcounter++;
+
+    fp2[fpcounter] = fp;
+
+    sprintf(manifestpath, "%s/manifests/%s.pp", path, manifestname);
+
+    fp = fopen(manifestpath, "r");
+    if(fp==NULL) {
+      printf("Error: can't open manifest %s\n", manifestpath);
+      exit(1);
+    }
+    return 1;
+  }
+  else {
+    if(feof(fp) == 1) {
+      if(fpcounter>0) {
+        fp = fp2[fpcounter];
+        fpcounter--;
+        return 1;
+      }
+      return 0;
+    }
+    else {
+      return 1;
+    }
+  }
   return 0;
 }

@@ -13,8 +13,8 @@ int factertofile(char path[200]) {
   char infile[512], outfile[512];
   FILE *infp, *outfp;
 
-  sprintf(infile, "%s/facts/.common.ft", path);
-  sprintf(outfile, "%s/facts/common.ft", path);
+  sprintf(infile, "%s/facts/.facter.ft", path);
+  sprintf(outfile, "%s/facts/facter.ft", path);
 
   infp = fopen(infile, "w");
   if(infp==NULL) {

@@ -3,6 +3,8 @@ the hash is not needed
 
 but if you want to comment code you shoule put it there
 
+include "test"
+
 # file { 'example':
 
 file { 'example2':
@@ -26,14 +28,4 @@ file { 'delte_example3':
   path   => '/tmp/exampledir',
 }
 
-package { 'webserver':
-  ensure => present,
-}
-
-service { 'httpd':
-  ensure => 'running',
-  enable => true,
-}
-
-
-
+include "foo"

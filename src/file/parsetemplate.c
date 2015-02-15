@@ -17,7 +17,7 @@ int parsetemplate(int debug, char *path, char filename[200], char filepath[200])
   char intempl[512];
 
   sprintf(infact, "%s/facts/%s.ft", path, filename);
-  sprintf(incommonfact, "%s/facts/common.ft", path);
+  sprintf(incommonfact, "%s/facts/facter.ft", path);
   sprintf(intempl, "%s/template/%s", path, filename);
 
   templ = fopen(intempl, "r");
