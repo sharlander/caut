@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 
+char *path;
 
 int main (int argc, char *argv[])
 {
@@ -10,7 +11,7 @@ int main (int argc, char *argv[])
 // read command line agruments
 
   /* "bool" values for all possible options */
-  int optionpath=1; char *path;
+  int optionpath=1;
   int optionfacter=1;
   int optionverbose=1;
   int optiondebug=1;

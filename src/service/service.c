@@ -12,8 +12,10 @@ void provideservice(int debug, char *path) {
   int provider=0;
   char providername[200];
 
-  // not written setting it static  caut_getfact("provider_service", providername);
-  strcpy(providername, "systemd");
+  caut_getfact("provider_service", providername);
+  if(debug==0)
+    printf("provider is: %s\n", providername);
+
   if(strcmp(providername, "init") == 0) {
   /* init */
   provider=1;

@@ -5,49 +5,46 @@
 
 int getentry (char line[200], char savechar[200]);
 int removeticks (char *string);
+extern char *path;
 
 void caut_getfact(char *name, char *value) {
 
-  FILE *facter, *commonfact;
+  FILE *fact;
   char infact[512];
-  char incommonfact[512];
+  char buffer[1024];
+
+  /* open facter file */
 
   sprintf(infact, "%s/facts/facter.ft", path);
-  sprintf(incommonfact, "%s/facts/common.ft", path);
-
-  /* open fact files */
-
   fact = fopen(infact, "r");
-  if(fact==NULL) {
-    printf("Error: can't open facts file\n");
-    exit(1);
+
+  if(fact!=NULL) {
+    do {
+      fgets(buffer, 200, fact);
+      if (strstr(buffer, name) != 0) {
+        getentry(buffer, value);
+      }
+    } while(feof(fact) != 1);
+
+    fclose(fact);
   }
-  commonfact = fopen(incommonfact, "r");
-  if(commonfact==NULL) {
-    printf("Error: can't open common facts file\n");
-    exit(1);
+
+  /* open common facts file */
+
+  sprintf(infact, "%s/facts/common.ft", path);
+  fact = fopen(infact, "r");
+
+  if(fact!=NULL) {
+    do {
+      fgets(buffer, 200, fact);
+      if (strstr(buffer, name) != 0) {
+        getentry(buffer, value);
+      }
+    } while(feof(fact) != 1);
+
+    fclose(fact);
   }
-
-  /* facter facts */
-  do {
-    fgets(allfacts, 200, fact);
-    if (strstr(allfacts, factname) != 0) {
-      getentry(allfacts, factvalue);
-    }
-  } while(feof(fact) != 1);
-
-  /* common facts */
-  do {
-    fgets(allfacts, 200, commonfact);
-    if (strstr(allfacts, factname) != 0)
-      getentry(allfacts, factvalue);
-  } while(feof(commonfact) != 1);
-
-  fclose(facter);
-  fclose(commonfact);
 }
-
-
 
 int getentry (char line[200], char savechar[200]) {
   char *value;

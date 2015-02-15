@@ -3,21 +3,21 @@
 #include <unistd.h>
 #include <string.h>
 
-void fill_var(int debug, char buffer[512], FILE *fact, FILE *commonfact);
+void fill_var(int debug, char buffer[512], FILE *fact, FILE *commonfact, FILE *facterfact);
 int parsetemplate(int debug, char *path, char filename[200], char filepath[200]);
-int getentry (char line[200], char savechar[200]);
-int removeticks (char *string);
 
 int parsetemplate(int debug, char *path, char filename[200], char filepath[200]) {
 
-  FILE *fact, *commonfact, *templ, *out;
+  FILE *fact, *commonfact, *facterfact, *templ, *out;
 
   char infact[512];
   char incommonfact[512];
+  char infacterfact[512];
   char intempl[512];
 
   sprintf(infact, "%s/facts/%s.ft", path, filename);
-  sprintf(incommonfact, "%s/facts/facter.ft", path);
+  sprintf(infacterfact, "%s/facts/facter.ft", path);
+  sprintf(incommonfact, "%s/facts/common.ft", path);
   sprintf(intempl, "%s/template/%s", path, filename);
 
   templ = fopen(intempl, "r");
@@ -35,6 +35,11 @@ int parsetemplate(int debug, char *path, char filename[200], char filepath[200])
     printf("Error: can't open common facts file\n");
     exit(1);
   }
+  facterfact = fopen(infacterfact, "r");
+  if(commonfact==NULL) {
+    printf("Error: can't open facter facts file\n");
+    exit(1);
+  }
 
   out = fopen(filepath, "w");
   if(commonfact==NULL) {
@@ -49,7 +54,7 @@ int parsetemplate(int debug, char *path, char filename[200], char filepath[200])
   do {
 
     if(strstr(buffer, "<%$") != 0) {
-      fill_var(debug, buffer, fact, commonfact);
+      fill_var(debug, buffer, fact, commonfact, facterfact);
       fputs(buffer, out);
     }
     else {
@@ -64,11 +69,12 @@ int parsetemplate(int debug, char *path, char filename[200], char filepath[200])
   fclose(templ);
   fclose(fact);
   fclose(commonfact);
+  fclose(facterfact);
 
   return 0;
 }
 
-void fill_var(int debug, char buffer[512], FILE *fact, FILE *commonfact) {
+void fill_var(int debug, char buffer[512], FILE *fact, FILE *commonfact, FILE *facterfact) {
 
   int i,n,count;
   char tmpbuffer[512];
@@ -118,6 +124,13 @@ void fill_var(int debug, char buffer[512], FILE *fact, FILE *commonfact) {
     factname[counter] = '\0';
 
     // get fact value
+    // facter facts
+    rewind(facterfact);
+    do {
+      fgets(allfacts, 200, facterfact);
+      if (strstr(allfacts, factname) != 0)
+        getentry(allfacts, factvalue);
+    } while(feof(facterfact) != 1);
     // common facts
     rewind(commonfact);
     do {
@@ -155,22 +168,4 @@ void fill_var(int debug, char buffer[512], FILE *fact, FILE *commonfact) {
   // copy tmpbuffer to common buffer
   strcpy(buffer, tmpbuffer);
 
-}
-
-int getentry (char line[200], char savechar[200]) {
-  char *value;
-  value = strtok(line, "=");
-  value = strtok(NULL, "=");
-  value[(strlen(value)-1)] = 0;
-  removeticks(value);
-  strcpy(savechar, value);
-  return 0;
-}
-
-int removeticks (char *string) {
-  if ((string[0] == 39) || (string[0] == 34))
-    memmove(string, string+1, strlen(string));
-  if ((string[(strlen(string)-1)] == 39) || (string[(strlen(string)-1)] == 34))
-    string[(strlen(string)-1)] = 0;
-  return 0;
 }
