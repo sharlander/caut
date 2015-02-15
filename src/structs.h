@@ -6,6 +6,7 @@ struct file_data {
     char name[200];
     char ensure[200];
     char path[200];
+    char target[200];
     char owner[200];
     char group[200];
     char mode[200];

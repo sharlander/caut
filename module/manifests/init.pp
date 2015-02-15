@@ -28,4 +28,10 @@ file { 'delte_example3':
   path   => '/tmp/exampledir',
 }
 
+file { 'example4':
+  ensure => link,
+  path   => '/tmp/examplelink',
+  target => '/tmp/examplefile',
+}
+
 include "foo"

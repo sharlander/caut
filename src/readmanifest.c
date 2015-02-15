@@ -48,6 +48,7 @@ int readmanifests(int verbose, int debug, char *path) {
       strcpy(file.name , "0");
       strcpy(file.ensure , "0");
       strcpy(file.path , "0");
+      strcpy(file.target , "0");
       strcpy(file.owner , "0");
       strcpy(file.group , "0");
       strcpy(file.mode , "0");
@@ -78,6 +79,8 @@ int readmanifests(int verbose, int debug, char *path) {
           manifest_getentry(buffer, file.ensure);
         if (strstr(buffer, "path") != 0)
           manifest_getentry(buffer, file.path);
+        if (strstr(buffer, "target") != 0)
+          manifest_getentry(buffer, file.target);
         if (strstr(buffer, "owner") != 0)
           manifest_getentry(buffer, file.owner);
         if (strstr(buffer, "group") != 0)
