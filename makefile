@@ -3,9 +3,10 @@
 SRC_MAIN = build/main.o build/factertofile.o build/help.o build/readmanifest.o build/version.o
 SRC_FILE = build/file/file.o build/file/filechown.o build/file/parsetemplate.o build/file/mkdir.o build/file/delete.o
 SRC_PACKAGE = build/package/yuminstall.o build/package/package.o build/package/yumuninstall.o build/package/uninstall.o build/package/install.o
+SRC_SERVICE = build/service/service.o build/service/start.o  build/service/stop.o build/service/disable.o build/service/enable.o
 
 CC = gcc
-OBJ = $(SRC_MAIN) $(SRC_FILE) $(SRC_PACKAGE)
+OBJ = $(SRC_MAIN) $(SRC_FILE) $(SRC_PACKAGE) $(SRC_SERVICE)
 CFLAGS =
 DEPS = src/structs.h
 

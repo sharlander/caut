@@ -12,7 +12,8 @@ void provideservice(int debug, char *path) {
   int provider=0;
   char providername[200];
 
-  caut_getfact("provider_service", providername);
+  // not written setting it static  caut_getfact("provider_service", providername);
+  strcpy(providername, "systemd");
   if(strcmp(providername, "init") == 0) {
   /* init */
   provider=1;
@@ -28,14 +29,10 @@ void provideservice(int debug, char *path) {
 
   if((strcmp(service.ensure, "present") == 0 ) || (strcmp(service.ensure, "running") == 0 )) {
     /* start service */
-    if(debug==0)
-      printf("starting service... %s\n", service.name);
     start_service(debug, service.name, path, provider);
   }
   else if((strcmp(service.ensure, "absent") == 0 ) || (strcmp(service.ensure, "stopped") == 0 )) {
     /* stop service */
-    if(debug==0)
-      printf("stopping service... %s\n", service.name);
     stop_service(debug, service.name, path, provider);
   }
   else {

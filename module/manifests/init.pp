@@ -29,3 +29,11 @@ file { 'delte_example3':
 package { 'webserver':
   ensure => present,
 }
+
+service { 'httpd':
+  ensure => 'running',
+  enable => true,
+}
+
+
+
